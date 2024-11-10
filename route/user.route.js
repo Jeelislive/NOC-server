@@ -2,6 +2,8 @@ import express from "express";
 import { application, checklist, deleteFileToCloudinary, getAllApplications, getDashboard, getFreshApplications, getList, getRenewalApplications, login, logout, myapplication, newUser, renewal, sendNotification, updateStatus } from "../controller/user.controller.js"; 
 import { isAuthenticated } from "../middleware/auth.middleware.js";
 import { upload } from '../utils/multer.js';
+import { configDotenv } from "dotenv";
+configDotenv();
 
 const app = express.Router();
 

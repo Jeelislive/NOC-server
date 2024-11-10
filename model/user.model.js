@@ -12,6 +12,11 @@ const userSchema = new Schema({
     required: true,
     unique: true,
   },
+  googeId: {
+    type: String,
+    required: false,
+    unique: true,
+  },
   password: {
     type: String,
     required: true,

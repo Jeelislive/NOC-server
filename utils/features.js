@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken";
 import { v4 as uuid } from 'uuid'; 
 import cloudinary from 'cloudinary';
+import dotenv from "dotenv";
+dotenv.config();
 
 
 // Cookie options for JWT token
@@ -63,5 +65,7 @@ const uploadFilesToCloudinary = async (files = [], userFolder) => {
     throw new Error(`Error uploading files to Cloudinary: ${error.message}`);
   }
 };
+
+
 
 export { sendToken, cookieOptions, uploadFilesToCloudinary };
