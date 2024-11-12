@@ -8,7 +8,7 @@ dotenv.config();
 // Cookie options for JWT token
 const cookieOptions = {
   maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
-  sameSite: "none",
+  sameSite: "None",
   httpOnly: true,
   secure: true,
 };
