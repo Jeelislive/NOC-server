@@ -1,3 +1,4 @@
+
 const corsOptions = {
     origin: [
       "http://localhost:5173",
@@ -6,6 +7,7 @@ const corsOptions = {
       
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
+    withCredentials: true,
     credentials: true,
   };
 

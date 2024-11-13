@@ -10,12 +10,13 @@ import userRoute from "./route/user.route.js";
 import { errorMiddleware } from "./middleware/error.js";
 import { v2 as cloudinary } from "cloudinary";
 
+dotenv.config();
+
 const app = express();
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
-dotenv.config();
 
 const PORT = process.env.PORT || 4000;
 const URI = process.env.MongoDBURI;
