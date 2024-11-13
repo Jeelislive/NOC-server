@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 const { compare } = bcrypt;
 import User from "../model/user.model.js";
-import {cookieOptions, sendToken, uploadFilesToCloudinary} from "../utils/features.js";
+import { sendToken, uploadFilesToCloudinary} from "../utils/features.js";
 import {TryCatch} from "../middleware/error.js";
 import {ErrorHandler} from "../utils/utility.js";
 import cloudinary from "cloudinary";
