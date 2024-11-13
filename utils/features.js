@@ -29,7 +29,7 @@ dotenv.config();
 const sendToken = (res, user, code, message) => {
   const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
   console.log("Token:", token);
-
+  
   return res.status(code).json({
     success: true,
     user,
