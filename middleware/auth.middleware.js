@@ -5,7 +5,6 @@ import env from "dotenv";
 env.config();
 
 const isAuthenticated = TryCatch(async (req, res, next) => {
-  // Get token from the Authorization header
   const token = req.headers['authorization'] && req.headers['authorization'].split(' ')[1];
   
   if (!token) {
@@ -13,10 +12,9 @@ const isAuthenticated = TryCatch(async (req, res, next) => {
   }
 
   try {
-    // Verify the token
     const decodedData = jwt.verify(token, process.env.JWT_SECRET);
 
-    req.user = decodedData._id; // Attach user data to the request object
+    req.user = decodedData._id; 
     next();
   } catch (error) {
     return next(new ErrorHandler("Invalid or expired token", 401));
