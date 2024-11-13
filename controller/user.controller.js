@@ -62,13 +62,11 @@ const login = TryCatch(async (req, res, next) => {
 });
 
 const logout = TryCatch(async(req, res) => {
-  return res.status(200).cookie("nocapptoken", "", 
-    {
-    ...cookieOptions, maxAge: 0,
-  }).json({
-      success: true,
-      message: "Logged out successfully",
-  }); 
+    res.status(200).json({
+        success: true,
+        message: "Logged out successfully",
+    });
+
 });
 
 const getDashboard = TryCatch(async(req, res) => {
