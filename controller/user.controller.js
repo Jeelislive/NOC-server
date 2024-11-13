@@ -28,7 +28,7 @@ const newUser = TryCatch(async (req, res, next) => {
   sendToken(res, user, 201, "User created");
 
   if (!user) {
-    return next(new ErrorHandler("User not found", 404));
+    return next(new ErrorHandler("User not created", 400));
   }
 
   const newChecklist = new Checklist({
