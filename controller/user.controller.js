@@ -58,6 +58,7 @@ const login = TryCatch(async (req, res, next) => {
 
   // Include role information in the login response if needed
   sendToken(res, user, 200, `Welcome Back, ${user.username} (${user.role})`);
+
 });
 
 const logout = TryCatch(async(req, res) => {
