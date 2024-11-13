@@ -538,7 +538,7 @@ const myapplication = TryCatch(async (req, res) => {
 
 const deleteFileToCloudinary = TryCatch(async (req, res) => {
   const { public_ids } = req.body;
-  console.log("Public ID:", public_ids);
+  // console.log("Public ID:", public_ids);
 
   if (!public_ids || public_ids.length === 0) {
     return res.status(400).json({ message: 'No public_ids provided' });
