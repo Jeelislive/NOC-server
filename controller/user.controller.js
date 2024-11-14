@@ -356,6 +356,10 @@ const updateStatus = TryCatch(async (req, res, next) => {
     return next(new ErrorHandler("User not found", 404));
   }
 
+  if (applicationStatus === "Approved" && !user.isCheckListDone) {
+    return next(new ErrorHandler("Cannot approve application. Checklist is not completed.", 400));
+  }
+
   user.status = applicationStatus;
 
   if (applicationStatus === 'Approved' || applicationStatus === 'Rejected') {
