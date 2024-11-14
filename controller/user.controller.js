@@ -393,15 +393,62 @@ const generateFireNOC = async (user) => {
 
   const doc = new PDFDocument();
   doc.pipe(fs.createWriteStream(pdfPath));
-  doc.fontSize(20).text("Fire NOC Certificate", { align: 'center' });
+
+  // Title - Fire NOC Certificate
+  doc.fontSize(24).font('Helvetica-Bold').text("Government of [Your Country/Region]", { align: 'center' });
+  doc.fontSize(30).font('Helvetica-Bold').text("Fire No Objection Certificate (NOC)", { align: 'center' });
+  doc.moveDown(2);
+  
+  // Date and Address Section
+  doc.fontSize(12).font('Helvetica').text(`Date: ${new Date().toLocaleDateString()}`, { align: 'right' });
   doc.moveDown();
-  doc.fontSize(12).text(`This is to certify that the Fire Safety measures for the property owned by ${user.name} (Email: ${user.email}) have been approved.`);
-  doc.text("All necessary safety requirements have been met as per the guidelines.");
-  doc.text("Congratulations on receiving your Fire NOC!", { align: 'center' });
+  doc.text(`Address: [Government Department Address]`, { align: 'right' });
+  doc.moveDown(1);
+  
+  // Recipient Details
+  doc.fontSize(14).font('Helvetica-Bold').text("Certificate Holder:", { align: 'left' });
+  doc.fontSize(12).font('Helvetica').text(`${user.name}`, { align: 'left' });
+  doc.fontSize(12).text(`Email: ${user.email}`, { align: 'left' });
+  doc.moveDown(1);
+  
+  // Body of the Certificate
+  doc.fontSize(12).font('Helvetica').text("This is to certify that the Fire Safety measures for the property owned by the aforementioned individual have been reviewed and approved by the [Relevant Authority] as per the applicable fire safety laws and regulations.", { align: 'justify' });
+  doc.moveDown();
+  
+  doc.text("The following fire safety measures have been implemented and found to be satisfactory:", { align: 'justify' });
+  doc.moveDown();
+  
+  doc.fontSize(12).list([
+    'Fire Alarm Systems: Installed and operational.',
+    'Fire Extinguishers: Properly installed at strategic locations.',
+    'Exit Routes: Clearly marked and unobstructed.',
+    'Emergency Lighting: Installed and operational.',
+    'Fire Drills: Conducted regularly and documented.'
+  ]);
+  doc.moveDown();
+  
+  // Certification Statement
+  doc.fontSize(12).font('Helvetica').text("This Fire NOC is issued under the authority of the Fire Safety Compliance Act and is valid until [Expiration Date].", { align: 'justify' });
+  doc.moveDown();
+  
+  // Conclusion and Signature Block
+  doc.text("Congratulations on successfully meeting all required fire safety standards.", { align: 'center' });
+  doc.moveDown(2);
+  
+  doc.text("Issued By:", { align: 'left' });
+  doc.text("[Issuing Authority Name]", { align: 'left' });
+  doc.text("[Department Name]", { align: 'left' });
+  doc.moveDown();
+  
+  doc.fontSize(12).font('Helvetica').text("Signature:", { align: 'left' });
+  doc.moveDown(1);
+  doc.text("[Signature of Authorized Person]");
+  
   doc.end();
 
   return pdfPath;
 };
+
 
 const statusNotify = TryCatch(async (user, applicationStatus, pdfPath) => {
   const { email } = user;
@@ -602,7 +649,10 @@ const myapplication = TryCatch(async (req, res) => {
 
   try {
    if(user.applicationCount > 0 || user.renewalCount > 0){
-    const documentsFolder = `user_uploads/${userEmail}/fresh_application`;
+    const documentsFolder = user.applicationCount > 0 
+    ? `user_uploads/${userEmail}/fresh_application` 
+    : `user_uploads/${userEmail}/renewal_application`;
+
     const cloudinaryResult = await cloudinary.api.resources_by_asset_folder(documentsFolder);
 
      documents = cloudinaryResult.resources.map(resource => ({
