@@ -8,6 +8,8 @@ import cloudinary from "cloudinary";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import Checklist from "../model/checklist.model.js";
+import PDFDocument from "pdfkit";
+import fs from "fs";
 dotenv.config();
 
 const newUser = TryCatch(async (req, res, next) => {
@@ -189,7 +191,6 @@ const getAllApplications = TryCatch( async (req, res) => {
     const userDataPromises = users.map(async (currentUser) => {
       const userEmail = currentUser.email;
       const documentsFolder = `user_uploads/${userEmail}`;
-      console.log("Documents folder:", currentUser.status);
       try {
         
         const cloudinaryResult = await cloudinary.api.resources_by_asset_folder(documentsFolder);
@@ -360,6 +361,19 @@ const updateStatus = TryCatch(async (req, res, next) => {
   if (applicationStatus === 'Approved' || applicationStatus === 'Rejected') {
     user.applicationCount = 0;
     user.renewalCount = 0;
+
+    try {
+      if (applicationStatus === 'Approved') {
+        const pdfPath = await generateFireNOC(user);
+
+        await statusNotify(user, applicationStatus, pdfPath);
+      } else {
+        await statusNotify(user, applicationStatus, null);
+      }
+    } catch (error) {
+      console.error("Error sending notification:", error);
+      return next(new ErrorHandler("Error sending notification", 500));
+    }
   }
 
   await user.save();
@@ -368,6 +382,77 @@ const updateStatus = TryCatch(async (req, res, next) => {
     message: "Status updated and counts reset successfully",
   });
 });
+
+const generateFireNOC = async (user) => {
+  const pdfPath = `./FireNOC_${user.email}.pdf`;
+  console.log(`Generating PDF at path: ${pdfPath}`);  
+
+  const doc = new PDFDocument();
+  doc.pipe(fs.createWriteStream(pdfPath));
+  doc.fontSize(20).text("Fire NOC Certificate", { align: 'center' });
+  doc.moveDown();
+  doc.fontSize(12).text(`This is to certify that the Fire Safety measures for the property owned by ${user.name} (Email: ${user.email}) have been approved.`);
+  doc.text("All necessary safety requirements have been met as per the guidelines.");
+  doc.text("Congratulations on receiving your Fire NOC!", { align: 'center' });
+  doc.end();
+
+  return pdfPath;
+};
+
+const statusNotify = TryCatch(async (user, applicationStatus, pdfPath) => {
+  const { email } = user;
+  let message = '';
+  let subject = '';
+  let attachments = [];
+
+  if (applicationStatus === 'Approved') {
+    message = `
+      <p>Congratulations!</p>
+      <p>Your application has been approved. All safety measures have been successfully reviewed and passed.</p>
+      <p>Please find your Fire NOC certificate attached below.</p>
+    `;
+    subject = 'Application Approved';
+
+    if (pdfPath) {
+      attachments.push({
+        filename: `FireNOC_${user.email}.pdf`,
+        path: pdfPath,
+      });
+    }
+  } else if (applicationStatus === 'Rejected') {
+    message = `
+      <p>We regret to inform you that your application has been rejected.</p>
+      <p>Please review your application and submit the necessary corrections.</p>
+    `;
+    subject = 'Application Rejected';
+  }
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: false,
+    auth: {
+      user: process.env.EMAIL,
+      pass: process.env.EMAIL_PASSWORD,
+    },
+  });
+
+  const mailOptions = {
+    from: {
+      name: "NOC App",
+      address: process.env.EMAIL,
+    },
+    to: email,
+    subject: subject,
+    html: message,
+    attachments: attachments, 
+  };
+
+  await transporter.sendMail(mailOptions);
+  console.log("Email notification sent successfully");
+});
+
 
 const sendNotification = TryCatch(async (req, res) => {
   const { email, missingItems } = req.query;
